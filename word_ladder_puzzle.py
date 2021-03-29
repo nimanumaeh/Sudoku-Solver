@@ -204,14 +204,7 @@ class WordLadderPuzzle(Puzzle):
 
         IMPOSSIBLE - a solution does not exist
         """
-        # num_differences = 0
-        # for i in range(len(self.to_word)):
-        #     if self.to_word[i] != self.from_word[i]:
-        #         num_differences += 1
-        # if num_differences >
-
         solver = BfsSolver()
-        # ss = []
         sol1 = solver.solve(self)
 
         if len(sol1) == 0:
@@ -224,28 +217,6 @@ class WordLadderPuzzle(Puzzle):
             return MEDIUM
         else:
             return HARD
-
-        # seen = {str(sol1[-1])}
-        # ss.append(sol1)
-        # sol2 = solver.solve(self, seen)
-        # while not len(sol2) == 0:
-        #     ss.append(sol2)
-        #     seen.add(str(sol2[-1]))
-        #     sol2 = solver.solve(self, seen)
-        #
-        # smallest_length = len(ss[0])
-        # for sol in ss:
-        #     if len(sol) < smallest_length:
-        #         smallest_length = len(sol)
-        #
-        # if smallest_length == 1 or smallest_length == 2:
-        #     return TRIVIAL
-        # elif smallest_length == 3:
-        #     return EASY
-        # elif smallest_length == 4:
-        #     return MEDIUM
-        # else:
-        #     return HARD
 
 
 if __name__ == '__main__':
