@@ -96,7 +96,7 @@ class ExprTree:
         """
         return self._root is None
 
-    # TODO (Task 4): implement eval
+    # (Task 4): implement eval
     def eval(self, lookup: Dict[str, int]) -> int:
         """
         Evaluate this expression tree and return the result.
@@ -118,8 +118,25 @@ class ExprTree:
         >>> exp_t.eval(look_up)
         31
         """
+        if self.is_empty():
+            return 0
+        elif isinstance(self._root, int):
+            return self._root
+        elif isinstance(self._root, str) and self._root not in OPERATORS:
+            return lookup[self._root]
+        else:  # self._root is an operator
+            evaluation = 0
+            if self._root == OP_ADD:
+                for subtree in self._subtrees:
+                    evaluation += subtree.eval(lookup)
+            elif self._root == OP_MULTIPLY:
+                mult = 1
+                for subtree in self._subtrees:
+                    mult = mult * subtree.eval(lookup)
+                evaluation += mult
+            return evaluation
 
-    # TODO (Task 4): implement __str__
+    # (Task 4): implement __str__
     def __str__(self) -> str:
         """
         Return a string representation of this expression tree
@@ -150,8 +167,22 @@ class ExprTree:
         >>> print(exp_t)
         (3 + (x * y) + x)
         """
+        if self.is_empty():
+            return '()'
+        elif isinstance(self._root, int):
+            return str(self._root)
+        elif isinstance(self._root, str) and self._root not in OPERATORS:
+            return self._root
+        else:  # self._root is an operator
+            s = ''
+            if len(self._subtrees) == 1:
+                return f'{self._subtrees[0]}'
+            else:
+                for subtree in self._subtrees:
+                    s += f'{subtree} {self._root} '
+                return '(' + s[:-3] + ')'
 
-    # TODO (Task 4): implement __eq__
+    # (Task 4): implement __eq__
     def __eq__(self, other: ExprTree) -> bool:
         """
         Return whether this ExprTree is equivalent to <other>.
@@ -168,8 +199,18 @@ class ExprTree:
         >>> t2 == ExprTree('*', [])
         False
         """
+        if self.is_empty() and other.is_empty():
+            return True
+        elif self.is_empty() or other.is_empty():
+            return False
+        else:
+            if self._root != other._root:
+                return False
+            if len(self._subtrees) != len(other._subtrees):
+                return False
+            return self._subtrees == other._subtrees
 
-    # TODO (Task 4): implement substitute
+    # (Task 4): implement substitute
     def substitute(self, from_to: Dict[Union[str, int],
                                        Union[str, int]]) -> None:
         """
@@ -191,8 +232,13 @@ class ExprTree:
         >>> print(exp_t)
         (2 + (2 + 1))
         """
+        if not self.is_empty():
+            if self._root in from_to:
+                self._root = from_to[self._root]
+            for subtree in self._subtrees:
+                subtree.substitute(from_to)
 
-    # TODO (Task 4): implement populate_lookup
+    # (Task 4): implement populate_lookup
     def populate_lookup(self, lookup: Dict[str, int]) -> None:
         """
         Add entries to <lookup> so it contains a key for all variables
@@ -207,6 +253,13 @@ class ExprTree:
         >>> len(look_up) == 1
         True
         """
+        if self.is_empty():
+            pass
+        else:
+            if isinstance(self._root, str) and self._root not in OPERATORS:
+                lookup[self._root] = 0
+            for subtree in self._subtrees:
+                subtree.populate_lookup(lookup)
 
     def append(self, child: ExprTree) -> None:
         """Append child to this ExprTree's list of subtrees.
@@ -264,7 +317,7 @@ class ExprTree:
             i += 1
 
 
-# TODO (Task 4): implement construct_from_list
+# (Task 4): implement construct_from_list
 def construct_from_list(values: List[List[Union[str, int]]]) -> ExprTree:
     """
     Construct an expression tree from <values>.
@@ -277,7 +330,6 @@ def construct_from_list(values: List[List[Union[str, int]]]) -> ExprTree:
 
     Precondition:
     <values> encodes a valid expression tree
-
 
     >>> example = [[5]]
     >>> exp_t = construct_from_list(example)
@@ -292,7 +344,51 @@ def construct_from_list(values: List[List[Union[str, int]]]) -> ExprTree:
     >>> subtrees = [ExprTree(3, []), ExprTree('a', [])]
     >>> exp_t == ExprTree('+', subtrees)
     True
+    >>> ex = [['+'], [3, '*', 'a', '+'], ['a', 'b'], [5, 'c']]
+    >>> tr = construct_from_list(ex)
+    >>> print(tr)
+    (3 + (a * b) + a + (5 + c))
+    >>> ex2 = [['+'], [3, '+', '+'], [5, '*'], ['b', 'c'], [6, 'a']]
+    >>> tr2 = construct_from_list(ex2)
+    >>> print(tr2)
+    (3 + (5 + (6 * a)) + (b + c))
     """
+    if len(values[0]) == 0:
+        return ExprTree(None, [])
+    ftree = ExprTree(values[0][0], [])  # case w only root ?
+    q = Queue()
+    tq = Queue()
+
+    for sublist in values[1:]:
+        q.enqueue(sublist)
+
+    while not q.is_empty():
+        sublist = q.dequeue().copy()
+
+        for obj in sublist:
+            ftree, tq = _construct(obj, ftree, tq)
+
+        while not tq.is_empty():
+            ttree = tq.dequeue()
+            sublist2 = q.dequeue()
+
+            for obj2 in sublist2:
+                ttree, tq = _construct(obj2, ttree, tq)
+
+    return ftree
+
+
+def _construct(obj: Union[int, str], tree: ExprTree, tq: Queue) -> \
+        Tuple[ExprTree, Queue]:
+    """Helper function for construct_from_list(). TODO: Docstring !"""
+    if isinstance(obj, int) or \
+            (isinstance(obj, str) and obj not in OPERATORS):
+        tree.append(ExprTree(obj, []))
+    else:  # obj is an operator
+        ttree = ExprTree(obj, [])
+        tree.append(ttree)
+        tq.enqueue(ttree)
+    return tree, tq
 
 
 # Provided visualization code - see an example usage at the bottom
@@ -398,6 +494,6 @@ if __name__ == "__main__":
 
     # # uncomment to generate example of expression tree from the handout
     # # once you have completed the required parts of the code above
-    # ex = [['+'], [3, '*', 'a', '+'], ['a', 'b'], [5, 'c']]
-    # exprt = construct_from_list(ex)
-    # visualize(exprt)  # , display=True)  # toggle display or save to file
+    ex = [['+'], [3, '*', 'a', '+'], ['a', 'b'], [5, 'c']]
+    exprt = construct_from_list(ex)
+    visualize(exprt)  # , display=True)  # toggle display or save to file
