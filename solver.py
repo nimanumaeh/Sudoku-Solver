@@ -27,7 +27,7 @@ from typing import List, Optional, Set
 
 # You may remove this import if you don't use it in your code.
 from adts import Queue
-from assignments.a2.sudoku_puzzle import SudokuPuzzle
+# from assignments.a2.sudoku_puzzle import SudokuPuzzle
 
 from puzzle import Puzzle
 
@@ -65,7 +65,7 @@ class Solver:
         raise NotImplementedError
 
 
-# TODO (Task 2): implement the solve method in the DfsSolver class.
+# (Task 2): implement the solve method in the DfsSolver class.
 # Your solve method MUST be a recursive function (i.e. it must make
 # at least one recursive call to itself)
 # You may NOT change the interface to the solve method.
@@ -113,7 +113,7 @@ class DfsSolver(Solver):
             return solution
 
 
-# TODO (Task 2): implement the solve method in the BfsSolver class.
+# (Task 2): implement the solve method in the BfsSolver class.
 # Hint: You may find a Queue useful here.
 class BfsSolver(Solver):
     """"
@@ -141,7 +141,11 @@ class BfsSolver(Solver):
         the solution.
         """
         solution = [puzzle]
-        q = Queue()
+        q = Queue()  # puzzle state queue
+        pq = Queue()  # path queue
+        if seen is None:
+            seen = set()
+        seen.add(str(puzzle))
 
         if puzzle.is_solved():
             return [puzzle]
@@ -149,58 +153,42 @@ class BfsSolver(Solver):
         for ext in puzzle.extensions():
             if seen is None or str(ext) not in seen:
                 q.enqueue(ext)
+                pq.enqueue([])
 
         while not q.is_empty():
             obj = q.dequeue()
+
             if not obj.fail_fast() and (seen is None or str(obj) not in seen):
-                solution.append(obj)
+                lst = pq.dequeue()
+                lst.append(obj)
+
+                if seen is None:
+                    seen = set()
+                seen.add(str(obj))
+
+                if obj.is_solved():
+                    for obj2 in lst:
+                        solution.append(obj2)
+                    return solution
+
+                pq.enqueue(lst.copy())
+
+                num_exts = 0
                 for ext in obj.extensions():
-                    if seen is None or str(ext) not in seen:
-                        q.enqueue(ext)
+                    q.enqueue(ext)
+                    num_exts += 1
+                if num_exts > 1:
+                    while num_exts > 1:
+                        pq.enqueue(lst)
+                        num_exts -= 1
+            else:
+                pq.dequeue()
 
-        # TODO: Sort through solution list to pull out path
+        # if we reach this point, there is no solution
+        return []
 
-        return solution
-
-        # solution = [puzzle]
-        # q = Queue()
-        #
-        # if puzzle.is_solved():
-        #     return []
-        #
-        # # count = -1
-        # for ext in puzzle.extensions():
-        #     if seen is None or str(ext) not in seen:
-        #         q.enqueue(ext)
-        #         # count += 1
-        #
-        # # for i in range(count + 1):
-        # #     solution.append([puzzle])
-        #
-        # # var = 0
-        # while not q.is_empty():
-        #     obj = q.dequeue()
-        #     # if obj.is_solved():
-        #     #     solution.append(obj)
-        #     #     # solution[var].append(obj)
-        #     #     while not q.is_empty():
-        #     #         q.dequeue()
-        #     if not obj.fail_fast() and (seen is None or str(obj) not in seen):
-        #         solution.append(obj)
-        #         # solution[var].append(obj)
-        #         # if var == count:
-        #         #     var = 0
-        #         # else:
-        #         #     var += 1
-        #         for ext in obj.extensions():
-        #             if seen is None or str(ext) not in seen:
-        #                 q.enqueue(ext)
-        #
-        # # for i in range(count):
-        # #     if solution[i][-1].is_solved():
-        # #         return solution[i]
-        # # return []
-        # return solution
+    # if not ext.fail_fast() and \
+    #         (seen is None or str(ext) not in seen):
 
 
 if __name__ == "__main__":
@@ -217,3 +205,12 @@ if __name__ == "__main__":
                                 'disable': ['E1136'],
                                 'max-attributes': 15}
                         )
+
+    # s = SudokuPuzzle(4, [[" ", " ", "B", " "],
+    #                      ["B", " ", "D", "C"],
+    #                      [" ", " ", "A", " "],
+    #                      [" ", " ", "C", " "]],
+    #                  {"A", "B", "C", "D"})
+    # solver = DfsSolver()
+    # lst = solver.solve(s)
+
