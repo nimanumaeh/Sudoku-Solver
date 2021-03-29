@@ -23,7 +23,7 @@ This module contains the word ladder puzzle class.
 from __future__ import annotations
 from typing import Optional, Set, List
 
-from assignments.a2.solver import DfsSolver
+from assignments.a2.solver import BfsSolver
 from puzzle import Puzzle
 
 
@@ -204,7 +204,7 @@ class WordLadderPuzzle(Puzzle):
 
         IMPOSSIBLE - a solution does not exist
         """
-        solver = DfsSolver()
+        solver = BfsSolver()
         solution = solver.solve(self)
 
         if len(solution) == 0:
@@ -213,10 +213,10 @@ class WordLadderPuzzle(Puzzle):
             return TRIVIAL
         elif len(solution) == 3:
             return EASY
-        elif len(solution) >= 5:
-            return HARD
-        else:
+        elif len(solution) == 4:
             return MEDIUM
+        else:
+            return HARD
 
 if __name__ == '__main__':
     # any code you want to write to test WordLadderPuzzle.
