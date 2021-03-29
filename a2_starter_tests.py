@@ -208,6 +208,42 @@ def test_bfs_solver_example() -> None:
                             {"A", "B", "C", "D"})
 
     assert actual == expected
+         
+
+def test_bfs_solver_example_using_seen() -> None:
+    """Test BfsSolver.solve on a SudokuPuzzle."""
+    # This SudokuPuzzle is a more filled-in version of the one in the
+    # example from the handout.
+    s = SudokuPuzzle(4, [[" ", " ", "B", " "],
+                         ["B", " ", "D", "C"],
+                         [" ", " ", "A", " "],
+                         [" ", " ", "C", " "]],
+                     {"A", "B", "C", "D"})
+
+    solver = BfsSolver()
+    sol = solver.solve(s)
+    actual = sol[-1]
+    assert len(sol) == 11
+    seen = '-------\n|CD|BA|\n|BA|DC|\n-------\n|DC|AB|\n|AB|CD|\n-------'
+    sol2 = solver.solve(s, {seen})
+    actual2 = sol2[-1]
+    assert len(sol2) == 11
+
+    expected = SudokuPuzzle(4, [["C", "D", "B", "A"],
+                                ["B", "A", "D", "C"],
+                                ["D", "C", "A", "B"],
+                                ["A", "B", "C", "D"]],
+                            {"A", "B", "C", "D"})
+
+    assert actual == expected
+
+    expected2 = SudokuPuzzle(4, [["D", "C", "B", "A"],
+                                ["B", "A", "D", "C"],
+                                ["C", "B", "A", "D"],
+                                ["A", "D", "C", "B"]],
+                            {"A", "B", "C", "D"})
+
+    assert actual2 == expected2
 
 
 def test_word_ladder_eq_doctest() -> None:
