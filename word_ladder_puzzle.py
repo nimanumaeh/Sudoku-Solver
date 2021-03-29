@@ -172,11 +172,12 @@ class WordLadderPuzzle(Puzzle):
         for i in range(len(self.from_word)):
             for word in self.word_set:
                 if (self.from_word != word) and \
-                        ((word[:i] + word[i+1:]) ==
-                         (self.from_word[:i] + self.from_word[i+1:])) \
-                        and word[i] in LETTERS:
-                    extensions.append(WordLadderPuzzle(word, self.to_word,
-                                                       self.word_set))
+                        len(self.from_word) == len(word):
+                    if ((word[:i] + word[i+1:]) ==
+                        (self.from_word[:i] + self.from_word[i+1:])) and \
+                            word[i] in LETTERS:
+                        extensions.append(WordLadderPuzzle(word, self.to_word,
+                                                           self.word_set))
         return extensions
 
     # TODO (Task 3): implement get_difficulty
