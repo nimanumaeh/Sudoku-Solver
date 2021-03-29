@@ -250,7 +250,7 @@ class SudokuPuzzle(Puzzle):
 
         # list of SudokuPuzzles with each legal digit at position r, c
         return_lst = []
-        for symbol in allowed_symbols:
+        for symbol in sorted(allowed_symbols):
             # NOTE: type(self)(...) means create a new SudokuPuzzle,
             # we do this here so that if we were to create a subclass of
             # SudokuPuzzle later, then this will work as intended
