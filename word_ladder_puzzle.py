@@ -205,15 +205,15 @@ class WordLadderPuzzle(Puzzle):
         IMPOSSIBLE - a solution does not exist
         """
         solver = BfsSolver()
-        sol1 = solver.solve(self)
+        sol = solver.solve(self)
 
-        if len(sol1) == 0:
+        if len(sol) == 0:
             return IMPOSSIBLE
-        elif len(sol1) == 1 or len(sol1) == 2:
+        elif len(sol) == 1 or len(sol) == 2:
             return TRIVIAL
-        elif len(sol1) == 3:
+        elif len(sol) == 3:
             return EASY
-        elif len(sol1) == 4:
+        elif len(sol) == 4:
             return MEDIUM
         else:
             return HARD
