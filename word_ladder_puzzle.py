@@ -22,9 +22,8 @@ This module contains the word ladder puzzle class.
 
 from __future__ import annotations
 from typing import Optional, Set, List
-
-from assignments.a2.solver import BfsSolver
 from puzzle import Puzzle
+from solver import BfsSolver
 
 
 # difficulty constants
@@ -91,7 +90,7 @@ class WordLadderPuzzle(Puzzle):
         # set of characters to use for 1-character changes
         self._chars = LETTERS
 
-    # TODO (Task 3): override __eq__
+    # (Task 3): override __eq__
     def __eq__(self, other: WordLadderPuzzle) -> bool:
         """
         Return whether WordLadderPuzzle self is equivalent to other.
@@ -108,12 +107,12 @@ class WordLadderPuzzle(Puzzle):
         True
         """
         if self.from_word == other.from_word and \
-                self.to_word == other.to_word and \
+            self.to_word == other.to_word and \
                 self.word_set == other.word_set:
             return True
         return False
 
-    # TODO (Task 3): override __str__
+    # (Task 3): override __str__
     def __str__(self) -> str:
         """
         Return a human-friendly string representing this WordLadderPuzzle's
@@ -130,7 +129,7 @@ class WordLadderPuzzle(Puzzle):
         """
         return f'{self.from_word} -> {self.to_word}'
 
-    # TODO (Task 3): override is_solved
+    # (Task 3): override is_solved
     # Note: A WordLadderPuzzle is solved when from_word is the same as its
     # to_word
     def is_solved(self) -> bool:
@@ -146,7 +145,7 @@ class WordLadderPuzzle(Puzzle):
         """
         return self.from_word == self.to_word
 
-    # TODO (Task 3): override extensions
+    # (Task 3): override extensions
     # legal extensions are valid WordLadderPuzzles that have a from_word that
     # differs from this WordLadderPuzzle's from_word by exactly one character
     def extensions(self) -> List[WordLadderPuzzle]:
@@ -171,16 +170,16 @@ class WordLadderPuzzle(Puzzle):
 
         for i in range(len(self.from_word)):
             for word in self.word_set:
+                wj = word[:i] + word[i + 1:]
+                fwj = self.from_word[:i] + self.from_word[i + 1:]
                 if (self.from_word != word) and \
-                        len(self.from_word) == len(word):
-                    if ((word[:i] + word[i+1:]) ==
-                        (self.from_word[:i] + self.from_word[i+1:])) and \
-                            word[i] in LETTERS:
-                        extensions.append(WordLadderPuzzle(word, self.to_word,
-                                                           self.word_set))
+                    len(self.from_word) == len(word) and \
+                        (wj == fwj) and word[i] in LETTERS:
+                    extensions.append(WordLadderPuzzle(word, self.to_word,
+                                                       self.word_set))
         return extensions
 
-    # TODO (Task 3): implement get_difficulty
+    # (Task 3): implement get_difficulty
     # Note: implementing this requires you to have completed Task 2
     # Hint: Think about which of BfsSolver and DfsSolver is the right
     #       solver for the task at hand. (You may add any required
@@ -205,19 +204,49 @@ class WordLadderPuzzle(Puzzle):
 
         IMPOSSIBLE - a solution does not exist
         """
-        solver = BfsSolver()
-        solution = solver.solve(self)
+        # num_differences = 0
+        # for i in range(len(self.to_word)):
+        #     if self.to_word[i] != self.from_word[i]:
+        #         num_differences += 1
+        # if num_differences >
 
-        if len(solution) == 0:
+        solver = BfsSolver()
+        # ss = []
+        sol1 = solver.solve(self)
+
+        if len(sol1) == 0:
             return IMPOSSIBLE
-        elif len(solution) == 1 or len(solution) == 2:
+        elif len(sol1) == 1 or len(sol1) == 2:
             return TRIVIAL
-        elif len(solution) == 3:
+        elif len(sol1) == 3:
             return EASY
-        elif len(solution) == 4:
+        elif len(sol1) == 4:
             return MEDIUM
         else:
             return HARD
+
+        # seen = {str(sol1[-1])}
+        # ss.append(sol1)
+        # sol2 = solver.solve(self, seen)
+        # while not len(sol2) == 0:
+        #     ss.append(sol2)
+        #     seen.add(str(sol2[-1]))
+        #     sol2 = solver.solve(self, seen)
+        #
+        # smallest_length = len(ss[0])
+        # for sol in ss:
+        #     if len(sol) < smallest_length:
+        #         smallest_length = len(sol)
+        #
+        # if smallest_length == 1 or smallest_length == 2:
+        #     return TRIVIAL
+        # elif smallest_length == 3:
+        #     return EASY
+        # elif smallest_length == 4:
+        #     return MEDIUM
+        # else:
+        #     return HARD
+
 
 if __name__ == '__main__':
     # any code you want to write to test WordLadderPuzzle.
@@ -234,6 +263,3 @@ if __name__ == '__main__':
                                 'disable': ['E1136'],
                                 'max-attributes': 15}
                         )
-    wl1 = WordLadderPuzzle("coat", "goal", {"coal", "coat", "goal","meal","meat","moat"})
-    solver = DfsSolver()
-    solver.solve(wl1)
