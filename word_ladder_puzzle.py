@@ -213,7 +213,7 @@ class WordLadderPuzzle(Puzzle):
             return TRIVIAL
         elif len(sol) == 3:
             return EASY
-        elif len(sol) == 4:
+        elif len(sol) == 4 or len(sol) == 5:
             return MEDIUM
         else:
             return HARD
