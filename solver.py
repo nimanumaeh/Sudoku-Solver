@@ -23,7 +23,7 @@ find solutions to puzzles, step by step.
 
 from __future__ import annotations
 
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Tuple
 
 # You may remove this import if you don't use it in your code.
 from adts import Queue
@@ -167,28 +167,55 @@ class BfsSolver(Solver):
                 seen.add(str(obj))
 
                 if obj.is_solved():
-                    for obj2 in lst:
-                        solution.append(obj2)
-                    return solution
+                    return _solution(solution, lst)
+                    # for obj2 in lst:
+                    #     solution.append(obj2)
+                    # return solution
 
                 pq.enqueue(lst.copy())
 
-                num_exts = 0
-                for ext in obj.extensions():
-                    q.enqueue(ext)
-                    num_exts += 1
-                if num_exts > 1:
-                    while num_exts > 1:
-                        pq.enqueue(lst)
-                        num_exts -= 1
+                q, pq = _modify_queues(obj, q, pq, lst)
+                # num_exts = 0
+                # for ext in obj.extensions():
+                #     q.enqueue(ext)
+                #     num_exts += 1
+                # if num_exts > 1:
+                #     while num_exts > 1:
+                #         pq.enqueue(lst)
+                #         num_exts -= 1
             else:
                 pq.dequeue()
 
         # if we reach this point, there is no solution
         return []
 
-    # if not ext.fail_fast() and \
-    #         (seen is None or str(ext) not in seen):
+
+def _modify_queues(obj: Puzzle, q: Queue, pq: Queue, lst: list) -> \
+        Tuple[Queue, Queue]:
+    """A private helper function for BfsSolver's solve() method that updates
+    <q> and <pq> to ensure they have the next puzzle states and paths (adding
+    the path <lst> the correct number of times), respectively, according to
+    <obj>'s extensions available for the next iteration of the loop.
+    """
+    num_exts = 0
+    for ext in obj.extensions():
+        q.enqueue(ext)
+        num_exts += 1
+    if num_exts > 1:
+        while num_exts > 1:
+            pq.enqueue(lst)
+            num_exts -= 1
+    return q, pq
+
+
+def _solution(solution: list, lst: list) -> list:
+    """A private helper function for BfsSolver's solve() method that mutates
+    and returns <solution> such that it adds the now solved path of puzzle
+    states from <lst>.
+    """
+    for obj2 in lst:
+        solution.append(obj2)
+    return solution
 
 
 if __name__ == "__main__":
@@ -213,4 +240,3 @@ if __name__ == "__main__":
     #                  {"A", "B", "C", "D"})
     # solver = DfsSolver()
     # lst = solver.solve(s)
-
