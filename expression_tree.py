@@ -380,7 +380,19 @@ def construct_from_list(values: List[List[Union[str, int]]]) -> ExprTree:
 
 def _construct(obj: Union[int, str], tree: ExprTree, tq: Queue) -> \
         Tuple[ExprTree, Queue]:
-    """Helper function for construct_from_list(). TODO: Docstring !"""
+    """A private helper function for construct_from_list() that mutates
+    and returns <tree> and <tq> according to whether <obj> is an operator
+    or not.
+
+    >>> t = ExprTree('+', [ExprTree(3, []), ExprTree(5, [])])
+    >>> q = Queue()
+    >>> obj = '2'
+    >>> str(t)
+    '(3 + 5)'
+    >>> t, q = _construct(obj, t, q)
+    >>> str(t)
+    '(3 + 5 + 2)'
+    """
     if isinstance(obj, int) or \
             (isinstance(obj, str) and obj not in OPERATORS):
         tree.append(ExprTree(obj, []))
