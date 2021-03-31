@@ -167,16 +167,14 @@ class WordLadderPuzzle(Puzzle):
         True
         """
         extensions = []
-
         for i in range(len(self.from_word)):
             for word in self.word_set:
-                wj = word[:i] + word[i + 1:]
-                fwj = self.from_word[:i] + self.from_word[i + 1:]
-                if (self.from_word != word) and \
-                    len(self.from_word) == len(word) and \
-                        (wj == fwj) and word[i] in LETTERS:
-                    extensions.append(WordLadderPuzzle(word, self.to_word,
-                                                       self.word_set))
+                if len(self.from_word) == len(word) and self.from_word != word:
+                    wj = word[:i] + word[i + 1:]
+                    fwj = self.from_word[:i] + self.from_word[i + 1:]
+                    if (wj == fwj) and word[i] in LETTERS:
+                        extensions.append(WordLadderPuzzle(word, self.to_word,
+                                                           self.word_set))
         return extensions
 
     # (Task 3): implement get_difficulty
