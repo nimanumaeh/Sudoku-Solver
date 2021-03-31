@@ -88,6 +88,12 @@ class ExpressionTreePuzzle(Puzzle):
         >>> puz.is_solved()
         True
         """
+        for item in self.variables:
+            if self.variables[item] == 0:
+                return False
+        if self._tree.eval(self.variables) != self.target:
+            return False
+        return True
 
     # TODO (Task 5) override __str__
     def __str__(self) -> str:
@@ -110,6 +116,8 @@ class ExpressionTreePuzzle(Puzzle):
         {'a': 0, 'b': 0}
         ((a * (b + 6 + 6)) + 5) = 61
         """
+        return str(self.variables) + '\n' + str(self._tree) + ' = ' + str(
+                                                                    self.target)
 
     # TODO (Task 5) override extensions
     def extensions(self) -> List[ExpressionTreePuzzle]:
@@ -139,6 +147,22 @@ class ExpressionTreePuzzle(Puzzle):
         >>> len(exts_of_puz) == 18
         True
         """
+        tree = self._tree.copy()
+        final = []
+        lst = [] # list of on assigned values
+        variables = self.variables.copy()
+        for var in variables:
+            if variables[var] == 0:
+                lst.append(var)
+        # Now we have the list of unassigned variables, create 9 expression
+        # trees for each unassigned value
+        for unassigned in lst:
+            for i in range(1, 10):
+                expt = ExpressionTreePuzzle(tree, self.target)
+                expt.variables[unassigned] = i
+                final.append(expt)
+
+        return final
 
     # TODO (TASK 5): override fail_fast
     # The specifics of how you implement this are up to you.
@@ -152,6 +176,15 @@ class ExpressionTreePuzzle(Puzzle):
         have no solution, False otherwise.
 
         """
+        extensions = self.extensions()
+        if len(extensions) == 0 and \
+                self._tree.eval(self.variables) != self.target:
+            return True
+
+        for puzzle in extensions:
+            if puzzle._tree.eval(self.variables) == self.target:
+                return False
+        return True
 
 
 if __name__ == "__main__":
@@ -168,3 +201,7 @@ if __name__ == "__main__":
                                 'disable': ['E1136'],
                                 'max-attributes': 15}
                         )
+
+    exp_t = ExprTree('a', [])
+    puz = ExpressionTreePuzzle(exp_t, 7)
+    exts_of_puz = puz.extensions()
