@@ -159,6 +159,8 @@ class ExpressionTreePuzzle(Puzzle):
         for unassigned in lst:
             for i in range(1, 10):
                 expt = ExpressionTreePuzzle(tree, self.target)
+                for var in expt.variables:
+                    expt.variables[var] = variables[var]
                 expt.variables[unassigned] = i
                 final.append(expt)
 
@@ -177,14 +179,35 @@ class ExpressionTreePuzzle(Puzzle):
 
         """
         extensions = self.extensions()
-        if len(extensions) == 0 and \
-                self._tree.eval(self.variables) != self.target:
+
+        # if no unassigned variables
+        if len(extensions) == 0 and not self.is_solved():
             return True
 
-        for puzzle in extensions:
-            if puzzle._tree.eval(self.variables) == self.target:
-                return False
-        return True
+        # ensure only allowed characters and numbers are present
+        for ch in str(self._tree):
+            if ch not in ' ()+*abcdefghijklmnopqrstuvwxyz0123456789':
+                return True
+
+        if len(extensions) == 9:
+            solved = False
+            for ext in extensions:
+                if ext.is_solved():
+                    solved = True
+            if not solved:
+                return True
+
+        return False
+
+#         extensions = self.extensions()
+#         if len(extensions) == 0 and \
+#                 self._tree.eval(self.variables) != self.target:
+#             return True
+
+#         for puzzle in extensions:
+#             if puzzle._tree.eval(self.variables) == self.target:
+#                 return False
+#         return True
 
 
 if __name__ == "__main__":
