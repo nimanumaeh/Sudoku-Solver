@@ -95,7 +95,10 @@ class DfsSolver(Solver):
         the solution.
         """
         if puzzle.fail_fast() or (seen is not None and str(puzzle) in seen):
-            return []
+            if puzzle.fail_fast():
+                if seen is None:
+                    seen = set()
+                seen.add(str(puzzle))
         elif puzzle.is_solved():
             return [puzzle]
         else:
@@ -105,11 +108,11 @@ class DfsSolver(Solver):
             seen.add(str(puzzle))
             for ext in puzzle.extensions():
                 t = self.solve(ext, seen)
-                if t == []:
-                    continue
-                elif t[-1].is_solved():
+                if t != [] and t[-1].is_solved():
                     solution.extend(t)
                     return solution
+            if not solution[-1].is_solved():
+                return []
             return solution
 
 
