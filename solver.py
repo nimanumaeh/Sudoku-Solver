@@ -203,7 +203,7 @@ def _modify_queues(obj: Puzzle, q: Queue, pq: Queue, lst: list) -> \
         num_exts += 1
     if num_exts > 1:
         while num_exts > 1:
-            pq.enqueue(lst)
+            pq.enqueue(lst.copy())
             num_exts -= 1
     return q, pq
 
