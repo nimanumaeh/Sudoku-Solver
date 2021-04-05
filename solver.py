@@ -132,13 +132,10 @@ class BfsSolver(Solver):
         second element should be a puzzle that is in <puzzle>.extensions(),
         and so on. The last puzzle in the list should be such that it is in a
         solved state.
-
         In other words, each subsequent item of the returned list should take
         the puzzle one step closer to a solution, which is represented by the
         last item in the list.
-
         Return an empty list if the puzzle has no solution.
-
         <seen> is either None (default) or a set of puzzle states' string
         representations, whose puzzle states can't be any part of the path to
         the solution.
@@ -170,14 +167,14 @@ class BfsSolver(Solver):
                 seen.add(str(obj))
 
                 if obj.is_solved():
-                    return _solution(solution, lst)
+                    return self._solution(solution, lst)
                     # for obj2 in lst:
                     #     solution.append(obj2)
                     # return solution
 
                 pq.enqueue(lst.copy())
 
-                q, pq = _modify_queues(obj, q, pq, lst)
+                q, pq = self._modify_queues(obj, q, pq, lst)
                 # num_exts = 0
                 # for ext in obj.extensions():
                 #     q.enqueue(ext)
@@ -192,33 +189,33 @@ class BfsSolver(Solver):
         # if we reach this point, there is no solution
         return []
 
+    @staticmethod
+    def _modify_queues(obj: Puzzle, q: Queue, pq: Queue, lst: list) -> \
+            Tuple[Queue, Queue]:
+        """A private helper function for BfsSolver's solve() method that updates
+        <q> and <pq> to ensure they have the next puzzle states and paths (adding
+        the path <lst> the correct number of times), respectively, according to
+        <obj>'s extensions available for the next iteration of the loop.
+        """
+        num_exts = 0
+        for ext in obj.extensions():
+            q.enqueue(ext)
+            num_exts += 1
+        if num_exts > 1:
+            while num_exts > 1:
+                pq.enqueue(lst.copy())
+                num_exts -= 1
+        return q, pq
 
-def _modify_queues(obj: Puzzle, q: Queue, pq: Queue, lst: list) -> \
-        Tuple[Queue, Queue]:
-    """A private helper function for BfsSolver's solve() method that updates
-    <q> and <pq> to ensure they have the next puzzle states and paths (adding
-    the path <lst> the correct number of times), respectively, according to
-    <obj>'s extensions available for the next iteration of the loop.
-    """
-    num_exts = 0
-    for ext in obj.extensions():
-        q.enqueue(ext)
-        num_exts += 1
-    if num_exts > 1:
-        while num_exts > 1:
-            pq.enqueue(lst.copy())
-            num_exts -= 1
-    return q, pq
-
-
-def _solution(solution: list, lst: list) -> list:
-    """A private helper function for BfsSolver's solve() method that mutates
-    and returns <solution> such that it adds the now solved path of puzzle
-    states from <lst>.
-    """
-    for obj2 in lst:
-        solution.append(obj2)
-    return solution
+    @staticmethod
+    def _solution(solution: list, lst: list) -> list:
+        """A private helper function for BfsSolver's solve() method that mutates
+        and returns <solution> such that it adds the now solved path of puzzle
+        states from <lst>.
+        """
+        for obj2 in lst:
+            solution.append(obj2)
+        return solution
 
 
 if __name__ == "__main__":
